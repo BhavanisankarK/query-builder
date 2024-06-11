@@ -1,10 +1,17 @@
-import "./App.css";
+import "./App.scss";
+import Header from "./components/header/Header";
 import QueryBuilder from "./pages/Querybuilder/QueryBuilder";
+
 
 function App() {
   return (
     <>
-      <QueryBuilder />
+      <header>
+        <Header/>
+      </header>
+      <main>
+        <QueryBuilder />
+      </main>
     </>
   );
 }
