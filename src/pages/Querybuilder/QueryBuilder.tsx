@@ -132,12 +132,12 @@ function QueryBuilder() {
   border-radius: 16px;
   color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
   background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
-  border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
+  border: 1px solid #9f9f9f;
  
       };
 
   &:hover {
-    // border-color: ${blue[400]};
+     border-color: ${blue[400]};
   }
 
   &:focus {
@@ -181,7 +181,7 @@ function QueryBuilder() {
         />
       </div>
 
-      <Grid container spacing={2}>
+      <Grid container spacing={4} sx={{ mt: 0}}>
 
         {dbSchema &&
           <Grid item xs={12} order={{ md: cardPositions.schemaCard }}>
@@ -201,7 +201,8 @@ function QueryBuilder() {
               </CardContent>
               <CardActions>
                 {generateQuery && <Button size="small" className='gradientBtn'>Generate Query</Button>}
-                <Button size="small" className='iconBtn dropdownBtn'>Standard SQL <ArrowDropDownIcon /> </Button>
+                {!generateQuery && <Button size="small" className='gradientBtn'>Explain Schema</Button>}
+                
               </CardActions>
             </Card>
 
@@ -218,7 +219,8 @@ function QueryBuilder() {
               <Input aria-label="Demo input" multiline placeholder="Type something…" />
             </CardContent>
             <CardActions>
-              {generateSql && <Button size="small" className='gradientBtn'>Generate SQL</Button>}
+            {generateSql && <Button size="small" className='iconBtn dropdownBtn'>Standard SQL <ArrowDropDownIcon /> </Button>}
+              {generateSql && <Button size="small" className='gradientBtn'>Generate Query</Button>}
               {explainSql && <Button size="small" className='gradientBtn'>Copy</Button>}
 
               <Button size="small" className='iconBtn' onClick={handleOpen}><LaunchIcon /></Button>
@@ -245,7 +247,7 @@ function QueryBuilder() {
             </CardContent>
             <CardActions>
               <Button size="small" className='secondaryBtn'>Copy SQL</Button>
-              {generateSql && <Button size="small" className='primaryBtn'>Run SQL</Button>}
+              {generateSql && <Button size="small" className='primaryBtn' onClick={handleOpen}>Run SQL</Button>}
               {explainSql && <Button size="small" className='primaryBtn'>Explain SQL</Button>}
             </CardActions>
           </Card>
