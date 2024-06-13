@@ -55,7 +55,7 @@
         .MuiCardContent-root {
             padding: 0px;
             margin-bottom: 10px;
-
+            
             h5 {
                 font-weight: 500;
                 margin: 0 0 10px;
@@ -105,6 +105,10 @@
                         outline: none;
                     }
                 }
+
+                &.Mui-disabled {
+                    opacity: 0.6;
+                }
             }
 
             .MuiInputBase-root.MuiOutlinedInput-root {
@@ -126,11 +130,17 @@
         }
     }
 }
-
+.dbSchemaInput textarea {
+    background-color: #2D2D2D;
+    color: #6C6C6C;
+}
 .codePreformatBox {
     position: relative;
     padding: 10px 15px;
     font-size: 14px;
+    border: 1px solid #a7a7a7;
+    border-radius: 16px;
+    min-height: 90px;
 
     .copiIconBtn {
         position: absolute;

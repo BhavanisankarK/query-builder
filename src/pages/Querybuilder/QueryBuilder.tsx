@@ -138,12 +138,11 @@ function QueryBuilder() {
               <CardContent>
                 <h5>Add your database tables here</h5>
                 <Input
-                  aria-label="Demo input"
-                  className="codePreformatBox"
+                  aria-label="Demo input" 
                   multiline
                   value={schema}
-                  onChange={handleSchema}
-                  placeholder="Type something…"
+                  onChange={handleSchema} 
+                  className="dbSchemaInput"
                 />
 
                 {/* <div className="codePreformatBox">
@@ -263,7 +262,7 @@ function QueryBuilder() {
                 />
               )}
               {!explainSql && (
-                <div className="codePreformatBox">
+                <div className="codePreformatBox" contentEditable >
                   <HTMLRenderer htmlContent={queryResponse} />
                 </div>
               )}
