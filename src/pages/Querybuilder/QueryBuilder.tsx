@@ -27,7 +27,9 @@ function QueryBuilder() {
 
   const [statements, setStatements] = useState("");
   const [queryResponse, setQueryResponse] = useState<any>();
-  const [queryType, setQueryType] = useState<string>('SQL');
+  const [query, setQuery] = useState("");
+  const [schema, setSchema] = useState("");
+  const [queryType, setQueryType] = useState("SQL");
 
   const [cardPositions, setCardPositions] = useState({
     schemaCard: 1,
@@ -72,9 +74,13 @@ function QueryBuilder() {
     setStatements(event.target.value);
   };
 
+  const handleQuery = (event: any) => {
+    setQuery(event.target.value);
+  };
+
   async function getQueryData() {
     const response = await postApi(
-      { statement: statements, query_type: queryType, schema: "" },
+      { statement: statements, query_type: queryType, schema: schema },
       "generate_query_schema"
     );
     setQueryResponse(separateSQLAndNonSQL(response?.query));
@@ -89,11 +95,19 @@ function QueryBuilder() {
   const handleSelectChange = (value: string) => {
     setQueryType(value); 
   };
+  async function getNaturalData() {
+    const response = await postApi(
+      { query: query },
+      "generate_natural_language"
+    );
+    console.log(response);
+  }
+
 
   return (
     <div className="queryBuilderBlock">
       <h1>Generate SQL with AI</h1>
-      <div className="toggleBox">
+     { !explainSql && <div className="toggleBox">
         <FormControlLabel
           className={`${dbSchema && "active"}`}
           control={
@@ -105,7 +119,7 @@ function QueryBuilder() {
           }
           label="Add Database Schema"
         />
-      </div>
+      </div>}
 
       <Grid container spacing={4} sx={{ mt: 0 }}>
         {dbSchema && (
@@ -113,7 +127,12 @@ function QueryBuilder() {
             <Card className="queryCards">
               <CardContent>
                 <h5>Add your database tables here</h5>
-                <Input aria-label="Demo input" className='codePreformatBox' multiline placeholder="Type something…" />
+                <Input
+                  aria-label="Demo input"
+                  className="codePreformatBox"
+                  multiline
+                  placeholder="Type something…"
+                />
 
                 {/* <div className="codePreformatBox">
                   <pre>
@@ -203,13 +222,30 @@ function QueryBuilder() {
         <Grid item xs={12} order={{ md: cardPositions.queryCard }}>
           <Card className="queryCards">
             <CardContent>
-              <h5>Your AI-generated SQL query:</h5>
-              {/* <Input aria-label="Demo input" multiline placeholder="Type something…" /> */}
+            { !explainSql &&  <h5>Your AI-generated SQL query:</h5> }
+              { explainSql && <h5>Write your SQL query here:</h5>}
+              { explainSql && <Input
+                aria-label="Demo input"
+                multiline
+                value={query}
+                onChange={handleQuery}
+                placeholder="Type something…"
+              />}
 
-              <div className="codePreformatBox">
-                {/* <ContentCopyIcon className="copiIconBtn" /> */}
-              <HTMLRenderer  htmlContent={queryResponse} />
-              </div>
+              {explainSql &&
+                <Input
+                  aria-label="Demo input"
+                  multiline
+                  value={statements}
+                  onChange={handleStatements}
+                  placeholder="Type something…"
+                />
+              }
+              {!explainSql && (
+                <div className="codePreformatBox"> 
+                  <HTMLRenderer htmlContent={queryResponse} />
+                </div>
+              )}
             </CardContent>
             <CardActions>
               <Button size="small" className="secondaryBtn">
@@ -225,7 +261,7 @@ function QueryBuilder() {
                 </Button>
               )}
               {explainSql && (
-                <Button size="small" className="primaryBtn">
+                <Button onClick={getNaturalData} size="small" className="primaryBtn">
                   Explain SQL
                 </Button>
               )}
