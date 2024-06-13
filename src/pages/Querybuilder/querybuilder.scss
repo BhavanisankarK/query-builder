@@ -106,18 +106,31 @@
                     }
                 }
             }
+
+            .MuiInputBase-root.MuiOutlinedInput-root {
+                border-radius: 25px;
+                background: #A0F4F4;
+            }
+
+            .MuiSelect-select.MuiSelect-outlined.MuiInputBase-input {
+                padding: 7.5px 30px 7.5px 14px;
+                font-size: 13px;
+                font-weight: 500;
+                min-width: 104px;
+
+            }
+
+            // .MuiInputBase-root.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+            //     border-color: transparent;
+            // }
         }
     }
 }
 
 .codePreformatBox {
-    background-color: #2D2D2D;
-
-    border-radius: 18px;
-    color: #6C6C6C;
-    border: 3px solid #FFFFFF;
-
     position: relative;
+    padding: 10px 15px;
+    font-size: 14px;
 
     .copiIconBtn {
         position: absolute;
@@ -129,10 +142,14 @@
     }
 
     pre {
+        padding: 10px;
+        background-color: #2D2D2D;
+        border-radius: 18px;
+        color: #6C6C6C;
+        border: 3px solid #FFFFFF;
         min-height: 90px;
         max-height: 180px;
-        overflow: scroll;
-        padding: 0px 10px;
+        overflow: scroll; 
 
         &::-webkit-scrollbar {
             height: 1px;
@@ -183,5 +200,3 @@
         }
     }
 }
-
-

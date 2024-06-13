@@ -1,6 +1,6 @@
 import "./querybuilder.scss";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import { Button, Card, CardActions, CardContent, Grid } from "@mui/material";
+import { Button, Card, CardActions, CardContent, Grid, Select } from "@mui/material";
 import React, { useState } from "react";
 import LaunchIcon from "@mui/icons-material/Launch";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
@@ -13,6 +13,7 @@ import { IOSSwitch } from "../../components/iosSwitch/IosSwitch";
 import { Input } from "../../components/input/Input";
 import { separateSQLAndNonSQL } from "../../utils/utils";
 import HTMLRenderer from "../../components/htmlRenderer/HtmlRenderer";
+import SelectComponent from "../../components/select/Select";
 
 function QueryBuilder() {
   const [dbSchema, setDbSchema] = useState(false);
@@ -26,6 +27,7 @@ function QueryBuilder() {
 
   const [statements, setStatements] = useState("");
   const [queryResponse, setQueryResponse] = useState<any>();
+  const [queryType, setQueryType] = useState<string>('SQL');
 
   const [cardPositions, setCardPositions] = useState({
     schemaCard: 1,
@@ -72,12 +74,21 @@ function QueryBuilder() {
 
   async function getQueryData() {
     const response = await postApi(
-      { statement: statements, query_type: "SQL", schema: "" },
+      { statement: statements, query_type: queryType, schema: "" },
       "generate_query_schema"
     );
     setQueryResponse(separateSQLAndNonSQL(response?.query));
   }
 
+  const types = [
+    'SQL',
+    'MongoDB', 
+    'PostgreSQL',
+  ];
+
+  const handleSelectChange = (value: string) => {
+    setQueryType(value); 
+  };
 
   return (
     <div className="queryBuilderBlock">
@@ -153,9 +164,10 @@ function QueryBuilder() {
             </CardContent>
             <CardActions>
               {generateSql && (
-                <Button size="small" className="iconBtn dropdownBtn">
-                  Standard SQL <ArrowDropDownIcon />{" "}
-                </Button>
+                <SelectComponent options={types} value={queryType} onChange={handleSelectChange}/>
+                // <Button size="small" className="iconBtn dropdownBtn">
+                //   Standard SQL <ArrowDropDownIcon />{" "}
+                // </Button>
               )}
               {generateSql && (
                 <Button
@@ -194,8 +206,8 @@ function QueryBuilder() {
               <h5>Your AI-generated SQL query:</h5>
               {/* <Input aria-label="Demo input" multiline placeholder="Type something…" /> */}
 
-              <div>
-                <ContentCopyIcon className="copiIconBtn" />
+              <div className="codePreformatBox">
+                {/* <ContentCopyIcon className="copiIconBtn" /> */}
               <HTMLRenderer  htmlContent={queryResponse} />
               </div>
             </CardContent>
