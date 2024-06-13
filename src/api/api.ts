@@ -1,4 +1,4 @@
-const BASE_API_URL = "";
+const BASE_API_URL = "http://20.193.133.240:9002";
 
 
 export async function getApi(apiName: string) {
