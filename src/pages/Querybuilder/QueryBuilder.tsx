@@ -8,7 +8,7 @@ import {
   Grid,
   // Select,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import LaunchIcon from "@mui/icons-material/Launch";
 // import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import SwapVertIcon from "@mui/icons-material/SwapVert";
@@ -21,6 +21,7 @@ import { Input } from "../../components/input/Input";
 import { separateSQLAndNonSQL } from "../../utils/utils";
 import HTMLRenderer from "../../components/htmlRenderer/HtmlRenderer";
 import SelectComponent from "../../components/select/Select";
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
 function QueryBuilder() {
   const [dbSchema, setDbSchema] = useState(false);
@@ -31,14 +32,15 @@ function QueryBuilder() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const [statements, setStatements] = useState("");
-  const [queryResponse, setQueryResponse] = useState<any>();
+  const [queryResponse, setQueryResponse] = useState<any>('');
   const [query, setQuery] = useState("");
   const [schema, setSchema] = useState("");
-  const [queryType, setQueryType] = useState("SQL");
+  const [queryType, setQueryType] = useState("MYSQL");
   const [naturalAnswers, setNaturalAnswers] = useState("");
   const [clickExplainSql, setClickExplainSql] = useState(false);
 
   const [modalText, setModalText] = useState("");
+  const [contentCopied, setContentCopied] = useState("");
 
   const [cardPositions, setCardPositions] = useState({
     schemaCard: 1,
@@ -99,11 +101,29 @@ function QueryBuilder() {
     setQueryResponse(separateSQLAndNonSQL(response?.query));
   }
 
-  const types = ["SQL", "MYSQL", "MongoDB", "PostgreSQL"];
+  const types = ['Standard SQL',
+    'PostgreSQL',
+    'MongoDB',
+    'MYSQL',
+    'MS SQL',
+    'MariaDB',
+    'Cypher',
+    'Snowflake',
+    'BigQuery',
+    'SQLite',
+    'DB2',
+    'Hive',
+    'Apache Spark',
+    'Redshift',
+    'PL/SQL',
+    'Clickhouse',
+    'Hibernate',
+    'Cassandra'];
 
   const handleSelectChange = (value: string) => {
     setQueryType(value);
   };
+
   async function getNaturalData() {
     const response = await postApi(
       { query: query },
@@ -111,6 +131,21 @@ function QueryBuilder() {
     );
     setNaturalAnswers(response?.natural_language_statement);
   }
+
+  const copyToClipboard = (e: any, content:any) => {
+    navigator.clipboard.writeText(content).then(() => {
+      setContentCopied(e.target.innerText); 
+    }).catch(err => {
+      console.error('Failed to copy!', err);
+    });
+  };
+
+  
+  useEffect(()=>{ 
+    setTimeout(()=> {
+      setContentCopied('');
+    }, 5000);
+  }, [contentCopied])
 
   return (
     <div className="queryBuilderBlock">
@@ -219,8 +254,8 @@ function QueryBuilder() {
                 </Button>
               )}
               {explainSql && (
-                <Button size="small" className="gradientBtn">
-                  Copy
+                <Button size="small" className="gradientBtn" onClick={(e) => copyToClipboard(e, naturalAnswers)}>
+                 {contentCopied === 'Copy' ? <>Content Copied <CheckCircleOutlineIcon/></> : 'Copy'}
                 </Button>
               )}
 
@@ -262,14 +297,14 @@ function QueryBuilder() {
                 />
               )}
               {!explainSql && (
-                <div className="codePreformatBox" contentEditable >
+                <div className="codePreformatBox">
                   <HTMLRenderer htmlContent={queryResponse} />
                 </div>
               )}
             </CardContent>
             <CardActions>
-              <Button size="small" className="secondaryBtn">
-                Copy SQL
+              <Button size="small" className="secondaryBtn" onClick={(e) => copyToClipboard(e, queryResponse)}>
+              {contentCopied === 'Copy SQL' ? <>Content Copied <CheckCircleOutlineIcon/></> : 'Copy SQL'}
               </Button>
               {generateSql && (
                 <Button
