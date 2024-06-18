@@ -37,6 +37,8 @@ function QueryBuilder() {
   const [naturalAnswers, setNaturalAnswers] = useState("");
   const [clickExplainSql, setClickExplainSql] = useState(false);
 
+  const [loading, setLoading] = useState(false);
+
   const [modalText, setModalText] = useState("");
   const [contentCopied, setContentCopied] = useState("");
 
@@ -65,6 +67,7 @@ function QueryBuilder() {
   const handleSwitchTwo = () => {
     toggleState(setGenerateSql);
     toggleState(setExplainSql);
+    toggleState(setClickExplainSql);
     setCardPositions((prevPositions) => {
       const { statementCard } = prevPositions;
       if (statementCard === 2) {
@@ -92,6 +95,7 @@ function QueryBuilder() {
   };
 
   async function getQueryData() {
+    setLoading(true);
     const response = await postApi(
       { statement: statements, query_type: queryType, schema: schema },
       "generate_query_schema"
@@ -99,15 +103,22 @@ function QueryBuilder() {
     setQueryResponse(response);
     setQuery(response?.query);
     setModalText(response);
+    
+      setLoading(false);
+    
   }
 
   async function getQueryDataForModal() {
+    setLoading(true);
     const response = await postApi(
       { statement: statements, query_type: queryType, schema: schema },
       "generate_query_schema"
     );
     setQueryResponse(response);
     setModalText(response);
+    
+      setLoading(false);
+    
   }
   const types = [
     "Standard SQL",
@@ -267,7 +278,11 @@ function QueryBuilder() {
                   placeholder="Type something…"
                 />
               )}
-              {clickExplainSql && <p>{naturalAnswers}</p>}
+              {clickExplainSql && 
+                <div className="codePreformatBox">
+                  <p>{naturalAnswers}</p>
+                </div>
+              }
             </CardContent>
             <CardActions>
               {generateSql && (
@@ -309,9 +324,9 @@ function QueryBuilder() {
                 size="small"
                 className="iconBtn"
                 onClick={() => {
-                  
-                    handleOpen();
-                    getQueryDataForModal();
+
+                  handleOpen();
+                  getQueryDataForModal();
                   //}
                   // } else {
                   //   handleOpen();
@@ -325,9 +340,8 @@ function QueryBuilder() {
           </Card>
 
           <span
-            className={`cardSwitchBtn ${
-              cardPositions.statementCard === 3 && "alignTop"
-            }`}
+            className={`cardSwitchBtn ${cardPositions.statementCard === 3 && "alignTop"
+              }`}
             onClick={handleSwitchTwo}
           >
             <SwapVertIcon />
@@ -341,17 +355,19 @@ function QueryBuilder() {
               {explainSql && <h5>Write your SQL query here:</h5>}
 
               {explainSql && (
-                <Input
-                  aria-label="Demo input"
-                  multiline
-                  value={query}
-                  onChange={handleQuery}
-                  placeholder="Type something…"
-                />
+                <div className="sqlQueryInput">
+                  <Input
+                    aria-label="Demo input"
+                    multiline
+                    value={query}
+                    onChange={handleQuery}
+                    placeholder="Type something…"
+                  />
+                </div>
               )}
               {!explainSql && (
                 <div className="codePreformatBox">
-                  <pre>{queryResponse?.query}</pre>
+                  {queryResponse && <pre>{queryResponse?.query}</pre>}
                 </div>
               )}
             </CardContent>
@@ -363,7 +379,7 @@ function QueryBuilder() {
               >
                 {contentCopied === "Copy SQL" ? (
                   <>
-                    Content Copied <CheckCircleOutlineIcon />
+                    SQL query Copied <CheckCircleOutlineIcon />
                   </>
                 ) : (
                   "Copy SQL"
@@ -401,7 +417,23 @@ function QueryBuilder() {
           aria-describedby="modal-modal-description"
         >
           <Box className="modalPopup">
-            <p>{renderContent(modalText)}</p>
+
+            {!loading ?
+              <>{renderContent(modalText)}</> :
+
+              <div className="codePreformatBox">
+                <div className="shimmerCard">
+                  <div className="shimmerBG title-line"></div>
+                  <div className="shimmerBG title-line end"></div>
+                  <div className="shimmerBG content-line m-t-24"></div>
+                  <div className="shimmerBG content-line"></div>
+                  <div className="shimmerBG content-line"></div>
+                  <div className="shimmerBG content-line"></div>
+                  <div className="shimmerBG content-line end"></div>
+                </div>
+              </div>
+            }
+
           </Box>
         </Modal>
       </Grid>
