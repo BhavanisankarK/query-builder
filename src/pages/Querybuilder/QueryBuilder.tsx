@@ -18,10 +18,8 @@ import Box from "@mui/material/Box";
 import { postApi } from "../../api/api";
 import { IOSSwitch } from "../../components/iosSwitch/IosSwitch";
 import { Input } from "../../components/input/Input";
-import { separateSQLAndNonSQL } from "../../utils/utils";
-import HTMLRenderer from "../../components/htmlRenderer/HtmlRenderer";
 import SelectComponent from "../../components/select/Select";
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
 function QueryBuilder() {
   const [dbSchema, setDbSchema] = useState(false);
@@ -32,7 +30,7 @@ function QueryBuilder() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const [statements, setStatements] = useState("");
-  const [queryResponse, setQueryResponse] = useState<any>('');
+  const [queryResponse, setQueryResponse] = useState<any>();
   const [query, setQuery] = useState("");
   const [schema, setSchema] = useState("");
   const [queryType, setQueryType] = useState("MYSQL");
@@ -98,27 +96,39 @@ function QueryBuilder() {
       { statement: statements, query_type: queryType, schema: schema },
       "generate_query_schema"
     );
-    setQueryResponse(separateSQLAndNonSQL(response?.query));
+    setQueryResponse(response);
+    setQuery(response?.query);
+    setModalText(response);
   }
 
-  const types = ['Standard SQL',
-    'PostgreSQL',
-    'MongoDB',
-    'MYSQL',
-    'MS SQL',
-    'MariaDB',
-    'Cypher',
-    'Snowflake',
-    'BigQuery',
-    'SQLite',
-    'DB2',
-    'Hive',
-    'Apache Spark',
-    'Redshift',
-    'PL/SQL',
-    'Clickhouse',
-    'Hibernate',
-    'Cassandra'];
+  async function getQueryDataForModal() {
+    const response = await postApi(
+      { statement: statements, query_type: queryType, schema: schema },
+      "generate_query_schema"
+    );
+    setQueryResponse(response);
+    setModalText(response);
+  }
+  const types = [
+    "Standard SQL",
+    "PostgreSQL",
+    "MongoDB",
+    "MYSQL",
+    "MS SQL",
+    "MariaDB",
+    "Cypher",
+    "Snowflake",
+    "BigQuery",
+    "SQLite",
+    "DB2",
+    "Hive",
+    "Apache Spark",
+    "Redshift",
+    "PL/SQL",
+    "Clickhouse",
+    "Hibernate",
+    "Cassandra",
+  ];
 
   const handleSelectChange = (value: string) => {
     setQueryType(value);
@@ -130,22 +140,48 @@ function QueryBuilder() {
       "generate_natural_language"
     );
     setNaturalAnswers(response?.natural_language_statement);
+    setStatements(response?.natural_language_statement);
   }
 
-  const copyToClipboard = (e: any, content:any) => {
-    navigator.clipboard.writeText(content).then(() => {
-      setContentCopied(e.target.innerText); 
-    }).catch(err => {
-      console.error('Failed to copy!', err);
-    });
+  const copyToClipboard = (e: any, content: any) => {
+    navigator.clipboard
+      .writeText(content)
+      .then(() => {
+        setContentCopied(e.target.innerText);
+      })
+      .catch((err) => {
+        console.error("Failed to copy!", err);
+      });
   };
 
-  
-  useEffect(()=>{ 
-    setTimeout(()=> {
-      setContentCopied('');
+  useEffect(() => {
+    setTimeout(() => {
+      setContentCopied("");
     }, 5000);
-  }, [contentCopied])
+  }, [contentCopied]);
+
+  const renderContent = (content: string | Record<string, string>) => {
+    if (typeof content === "string") {
+      return <p>{content}</p>;
+    } else if (typeof content === "object" && content !== null) {
+      return (
+        // <div className="codePreformatBox">
+        //   {Object.entries(content).map(([key, value], index) => (
+        //     key === 'query' ?
+        //       <pre  key={index}>{value}</pre> :
+        //       <p key={index}>{value}</p>
+        //   ))}
+        // </div>
+        <div className="codePreformatBox">
+          {Object.entries(content).map(([key, value], index) =>
+            key === "query" ? <></> : <p key={index}>{value}</p>
+          )}
+        </div>
+      );
+    } else {
+      return <p>Invalid content</p>;
+    }
+  };
 
   return (
     <div className="queryBuilderBlock">
@@ -167,16 +203,16 @@ function QueryBuilder() {
       )}
 
       <Grid container spacing={4} sx={{ mt: 0 }}>
-        {dbSchema && (
+        {dbSchema && !explainSql && (
           <Grid item xs={12} order={{ md: cardPositions.schemaCard }}>
             <Card className="queryCards">
               <CardContent>
                 <h5>Add your database tables here</h5>
                 <Input
-                  aria-label="Demo input" 
+                  aria-label="Demo input"
                   multiline
                   value={schema}
-                  onChange={handleSchema} 
+                  onChange={handleSchema}
                   className="dbSchemaInput"
                 />
 
@@ -254,8 +290,18 @@ function QueryBuilder() {
                 </Button>
               )}
               {explainSql && (
-                <Button size="small" className="gradientBtn" onClick={(e) => copyToClipboard(e, naturalAnswers)}>
-                 {contentCopied === 'Copy' ? <>Content Copied <CheckCircleOutlineIcon/></> : 'Copy'}
+                <Button
+                  size="small"
+                  className="gradientBtn"
+                  onClick={(e) => copyToClipboard(e, naturalAnswers)}
+                >
+                  {contentCopied === "Copy" ? (
+                    <>
+                      Content Copied <CheckCircleOutlineIcon />
+                    </>
+                  ) : (
+                    "Copy"
+                  )}
                 </Button>
               )}
 
@@ -263,8 +309,14 @@ function QueryBuilder() {
                 size="small"
                 className="iconBtn"
                 onClick={() => {
-                  handleOpen();
-                  setModalText(naturalAnswers);
+                  
+                    handleOpen();
+                    getQueryDataForModal();
+                  //}
+                  // } else {
+                  //   handleOpen();
+                  //   setModalText(naturalAnswers);
+                  // }
                 }}
               >
                 <LaunchIcon />
@@ -287,6 +339,7 @@ function QueryBuilder() {
             <CardContent>
               {!explainSql && <h5>Your AI-generated SQL query:</h5>}
               {explainSql && <h5>Write your SQL query here:</h5>}
+
               {explainSql && (
                 <Input
                   aria-label="Demo input"
@@ -298,13 +351,23 @@ function QueryBuilder() {
               )}
               {!explainSql && (
                 <div className="codePreformatBox">
-                  <HTMLRenderer htmlContent={queryResponse} />
+                  <pre>{queryResponse?.query}</pre>
                 </div>
               )}
             </CardContent>
             <CardActions>
-              <Button size="small" className="secondaryBtn" onClick={(e) => copyToClipboard(e, queryResponse)}>
-              {contentCopied === 'Copy SQL' ? <>Content Copied <CheckCircleOutlineIcon/></> : 'Copy SQL'}
+              <Button
+                size="small"
+                className="secondaryBtn"
+                onClick={(e) => copyToClipboard(e, queryResponse)}
+              >
+                {contentCopied === "Copy SQL" ? (
+                  <>
+                    Content Copied <CheckCircleOutlineIcon />
+                  </>
+                ) : (
+                  "Copy SQL"
+                )}
               </Button>
               {generateSql && (
                 <Button
@@ -319,7 +382,7 @@ function QueryBuilder() {
                 <Button
                   onClick={() => {
                     getNaturalData();
-                    setClickExplainSql(!clickExplainSql);
+                    setClickExplainSql(true);
                   }}
                   size="small"
                   className="primaryBtn"
@@ -338,7 +401,7 @@ function QueryBuilder() {
           aria-describedby="modal-modal-description"
         >
           <Box className="modalPopup">
-            <p>{modalText}</p>
+            <p>{renderContent(modalText)}</p>
           </Box>
         </Modal>
       </Grid>
