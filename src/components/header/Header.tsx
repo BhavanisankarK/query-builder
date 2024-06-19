@@ -1,4 +1,3 @@
-import React from 'react'
 import cglogo from '../../assets/cg_lense_logo.png';
 
 function Header() {
