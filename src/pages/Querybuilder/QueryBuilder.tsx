@@ -76,6 +76,7 @@ function QueryBuilder() {
         return { schemaCard: 1, statementCard: 2, queryCard: 3 };
       }
     });
+    getNaturalData(true);
   };
 
   const handleDbSchemaChange = (e: any) => {
@@ -103,9 +104,8 @@ function QueryBuilder() {
     setQueryResponse(response);
     setQuery(response?.query);
     setModalText(response);
-    
-      setLoading(false);
-    
+
+    setLoading(false);
   }
 
   async function getQueryDataForModal() {
@@ -116,9 +116,8 @@ function QueryBuilder() {
     );
     setQueryResponse(response);
     setModalText(response);
-    
-      setLoading(false);
-    
+
+    setLoading(false);
   }
   const types = [
     "Standard SQL",
@@ -145,13 +144,16 @@ function QueryBuilder() {
     setQueryType(value);
   };
 
-  async function getNaturalData() {
+  async function getNaturalData(isRequired: boolean) {
     const response = await postApi(
       { query: query },
       "generate_natural_language"
     );
     setNaturalAnswers(response?.natural_language_statement);
-    setStatements(response?.natural_language_statement);
+    if(isRequired){
+      setStatements(response?.natural_language_statement);
+    }
+    setModalText(response?.natural_language_statement);
   }
 
   const copyToClipboard = (e: any, content: any) => {
@@ -269,7 +271,7 @@ function QueryBuilder() {
             <CardContent>
               {!clickExplainSql && <h5>Write a statement what you want :</h5>}
               {clickExplainSql && <h5>Your AI-generated SQL Explanation:</h5>}
-              {!clickExplainSql && (
+              
                 <Input
                   aria-label="Demo input"
                   multiline
@@ -277,12 +279,12 @@ function QueryBuilder() {
                   onChange={handleStatements}
                   placeholder="Type something…"
                 />
-              )}
-              {clickExplainSql && 
+              
+              {/* {clickExplainSql && (
                 <div className="codePreformatBox">
                   <p>{naturalAnswers}</p>
                 </div>
-              }
+              )} */}
             </CardContent>
             <CardActions>
               {generateSql && (
@@ -324,7 +326,6 @@ function QueryBuilder() {
                 size="small"
                 className="iconBtn"
                 onClick={() => {
-
                   handleOpen();
                   getQueryDataForModal();
                   //}
@@ -340,8 +341,9 @@ function QueryBuilder() {
           </Card>
 
           <span
-            className={`cardSwitchBtn ${cardPositions.statementCard === 3 && "alignTop"
-              }`}
+            className={`cardSwitchBtn ${
+              cardPositions.statementCard === 3 && "alignTop"
+            }`}
             onClick={handleSwitchTwo}
           >
             <SwapVertIcon />
@@ -353,29 +355,27 @@ function QueryBuilder() {
             <CardContent>
               {!explainSql && <h5>Your AI-generated SQL query:</h5>}
               {explainSql && <h5>Write your SQL query here:</h5>}
+              <div className="sqlQueryInput">
+                <Input
+                  aria-label="Demo input"
+                  multiline
+                  value={query}
+                  onChange={handleQuery}
+                  placeholder="Type something…"
+                />
+              </div>
 
-              {explainSql && (
-                <div className="sqlQueryInput">
-                  <Input
-                    aria-label="Demo input"
-                    multiline
-                    value={query}
-                    onChange={handleQuery}
-                    placeholder="Type something…"
-                  />
-                </div>
-              )}
-              {!explainSql && (
+              {/* {!explainSql && (
                 <div className="codePreformatBox">
                   {queryResponse && <pre>{queryResponse?.query}</pre>}
                 </div>
-              )}
+              )} */}
             </CardContent>
             <CardActions>
               <Button
                 size="small"
                 className="secondaryBtn"
-                onClick={(e) => copyToClipboard(e, queryResponse)}
+                onClick={(e) => copyToClipboard(e, queryResponse?.query)}
               >
                 {contentCopied === "Copy SQL" ? (
                   <>
@@ -389,7 +389,10 @@ function QueryBuilder() {
                 <Button
                   size="small"
                   className="primaryBtn"
-                  onClick={handleOpen}
+                  onClick={()=>{
+                    getNaturalData(false);
+                    handleOpen();
+                  }}
                 >
                   View Statement
                 </Button>
@@ -397,7 +400,7 @@ function QueryBuilder() {
               {explainSql && (
                 <Button
                   onClick={() => {
-                    getNaturalData();
+                    getNaturalData(true);
                     setClickExplainSql(true);
                   }}
                   size="small"
@@ -417,10 +420,9 @@ function QueryBuilder() {
           aria-describedby="modal-modal-description"
         >
           <Box className="modalPopup">
-
-            {!loading ?
-              <>{renderContent(modalText)}</> :
-
+            {!loading ? (
+              <>{renderContent(modalText)}</>
+            ) : (
               <div className="codePreformatBox">
                 <div className="shimmerCard">
                   <div className="shimmerBG title-line"></div>
@@ -432,8 +434,7 @@ function QueryBuilder() {
                   <div className="shimmerBG content-line end"></div>
                 </div>
               </div>
-            }
-
+            )}
           </Box>
         </Modal>
       </Grid>
