@@ -7,7 +7,7 @@ export const TextareaElement = styled("textarea", {
 })(
   ({ theme }) => `
   width: 100%;
-  min-height: 90px;
+  min-height: 120px;
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 0.875rem;
   font-weight: 400;

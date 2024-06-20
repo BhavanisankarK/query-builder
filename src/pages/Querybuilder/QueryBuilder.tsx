@@ -156,21 +156,45 @@ function QueryBuilder() {
     setModalText(response?.natural_language_statement);
   }
 
-  const copyToClipboard = (e: any, content: any) => {
-    navigator.clipboard
-      .writeText(content)
-      .then(() => {
-        setContentCopied(e.target.innerText);
-      })
-      .catch((err) => {
-        console.error("Failed to copy!", err);
-      });
-  };
+  // const copyToClipboard = (e: any, content: any) => {
+  //   navigator.clipboard
+  //     .writeText(content)
+  //     .then(() => {
+  //       setContentCopied(e.target.innerText);
+  //     })
+  //     .catch((err) => {
+  //       console.error("Failed to copy!", err);
+  //     });
+  // };
+
+  const unsecuredCopyToClipboard = (text: any) => {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+        document.execCommand("copy");
+    } catch (err) {
+        console.error("Unable to copy to clipboard", err);
+    }
+    document.body.removeChild(textArea);
+};
+
+const copyToClipboard = async (e: any, content: any) => {
+    if (window.isSecureContext && navigator.clipboard) {
+        navigator.clipboard.writeText(content);
+    } else {
+        unsecuredCopyToClipboard(content);
+    }
+    setContentCopied(e.target.innerText);
+};
+
 
   useEffect(() => {
     setTimeout(() => {
       setContentCopied("");
-    }, 5000);
+    }, 4000);
   }, [contentCopied]);
 
   const renderContent = (content: string | Record<string, string>) => {
