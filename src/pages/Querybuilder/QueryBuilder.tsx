@@ -1,18 +1,9 @@
 import "./querybuilder.scss";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import {
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  Grid,
-  // Select,
-} from "@mui/material";
+import { Button, Card, CardActions, CardContent, Grid } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import LaunchIcon from "@mui/icons-material/Launch";
-// import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import SwapVertIcon from "@mui/icons-material/SwapVert";
-// import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import { postApi } from "../../api/api";
@@ -25,7 +16,6 @@ function QueryBuilder() {
   const [dbSchema, setDbSchema] = useState(false);
   const [generateSql, setGenerateSql] = useState(true);
   const [explainSql, setExplainSql] = useState(false);
-  // const [generateQuery, setGenerateQuery] = useState(false);
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -48,21 +38,6 @@ function QueryBuilder() {
     queryCard: 3,
   });
   const toggleState = (stateSetter: any) => stateSetter((prev: any) => !prev);
-
-  // const handleSwitchOne = () => {
-  //   toggleState(setGenerateQuery);
-
-  //   setCardPositions((prevPositions) => {
-  //     const { schemaCard } = prevPositions;
-  //     if (schemaCard === 1) {
-  //       return { schemaCard: 2, statementCard: 1, queryCard: 3 };
-  //     } else if (schemaCard === 2) {
-  //       return { schemaCard: 3, statementCard: 1, queryCard: 2 };
-  //     } else {
-  //       return { schemaCard: 2, statementCard: 1, queryCard: 3 };
-  //     }
-  //   });
-  // };
 
   const handleSwitchTwo = () => {
     toggleState(setGenerateSql);
@@ -150,22 +125,11 @@ function QueryBuilder() {
       "generate_natural_language"
     );
     setNaturalAnswers(response?.natural_language_statement);
-    if(isRequired){
+    if (isRequired) {
       setStatements(response?.natural_language_statement);
     }
     setModalText(response?.natural_language_statement);
   }
-
-  // const copyToClipboard = (e: any, content: any) => {
-  //   navigator.clipboard
-  //     .writeText(content)
-  //     .then(() => {
-  //       setContentCopied(e.target.innerText);
-  //     })
-  //     .catch((err) => {
-  //       console.error("Failed to copy!", err);
-  //     });
-  // };
 
   const unsecuredCopyToClipboard = (text: any) => {
     const textArea = document.createElement("textarea");
@@ -174,22 +138,21 @@ function QueryBuilder() {
     textArea.focus();
     textArea.select();
     try {
-        document.execCommand("copy");
+      document.execCommand("copy");
     } catch (err) {
-        console.error("Unable to copy to clipboard", err);
+      console.error("Unable to copy to clipboard", err);
     }
     document.body.removeChild(textArea);
-};
+  };
 
-const copyToClipboard = async (e: any, content: any) => {
+  const copyToClipboard = async (e: any, content: any) => {
     if (window.isSecureContext && navigator.clipboard) {
-        navigator.clipboard.writeText(content);
+      navigator.clipboard.writeText(content);
     } else {
-        unsecuredCopyToClipboard(content);
+      unsecuredCopyToClipboard(content);
     }
     setContentCopied(e.target.innerText);
-};
-
+  };
 
   useEffect(() => {
     setTimeout(() => {
@@ -202,13 +165,6 @@ const copyToClipboard = async (e: any, content: any) => {
       return <p>{content}</p>;
     } else if (typeof content === "object" && content !== null) {
       return (
-        // <div className="codePreformatBox">
-        //   {Object.entries(content).map(([key, value], index) => (
-        //     key === 'query' ?
-        //       <pre  key={index}>{value}</pre> :
-        //       <p key={index}>{value}</p>
-        //   ))}
-        // </div>
         <div className="codePreformatBox">
           {Object.entries(content).map(([key, value], index) =>
             key === "query" ? <></> : <p key={index}>{value}</p>
@@ -252,16 +208,6 @@ const copyToClipboard = async (e: any, content: any) => {
                   onChange={handleSchema}
                   className="dbSchemaInput"
                 />
-
-                {/* <div className="codePreformatBox">
-                  <pre>
-                    Employee (id, name, department_id); <br />
-                    Department (id, name, address);
-                    <br />
-                    Salary_Payments (id, employee_id, amount: int, date:
-                    navchar);
-                  </pre>
-                </div> */}
               </CardContent>
               <CardActions>
                 <Button
@@ -278,15 +224,6 @@ const copyToClipboard = async (e: any, content: any) => {
                 </Button>
               </CardActions>
             </Card>
-
-            {/* <span
-              className={`cardSwitchBtn ${
-                cardPositions.schemaCard === 3 && "alignTop"
-              }`}
-              onClick={handleSwitchOne}
-            >
-              <SwapVertIcon />
-            </span> */}
           </Grid>
         )}
 
@@ -295,20 +232,14 @@ const copyToClipboard = async (e: any, content: any) => {
             <CardContent>
               {!clickExplainSql && <h5>Write a statement what you want :</h5>}
               {clickExplainSql && <h5>Your AI-generated SQL Explanation:</h5>}
-              
-                <Input
-                  aria-label="Demo input"
-                  multiline
-                  value={statements}
-                  onChange={handleStatements}
-                  placeholder="Type something…"
-                />
-              
-              {/* {clickExplainSql && (
-                <div className="codePreformatBox">
-                  <p>{naturalAnswers}</p>
-                </div>
-              )} */}
+
+              <Input
+                aria-label="Demo input"
+                multiline
+                value={statements}
+                onChange={handleStatements}
+                placeholder="Type something…"
+              />
             </CardContent>
             <CardActions>
               {generateSql && (
@@ -317,9 +248,6 @@ const copyToClipboard = async (e: any, content: any) => {
                   value={queryType}
                   onChange={handleSelectChange}
                 />
-                // <Button size="small" className="iconBtn dropdownBtn">
-                //   Standard SQL <ArrowDropDownIcon />{" "}
-                // </Button>
               )}
               {generateSql && (
                 <Button
@@ -352,11 +280,6 @@ const copyToClipboard = async (e: any, content: any) => {
                 onClick={() => {
                   handleOpen();
                   getQueryDataForModal();
-                  //}
-                  // } else {
-                  //   handleOpen();
-                  //   setModalText(naturalAnswers);
-                  // }
                 }}
               >
                 <LaunchIcon />
@@ -413,7 +336,7 @@ const copyToClipboard = async (e: any, content: any) => {
                 <Button
                   size="small"
                   className="primaryBtn"
-                  onClick={()=>{
+                  onClick={() => {
                     getNaturalData(false);
                     handleOpen();
                   }}
